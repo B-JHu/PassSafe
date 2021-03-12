@@ -3,8 +3,12 @@ package b_jHu.passwordManager;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -12,6 +16,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerListModel;
 import javax.swing.SpinnerModel;
+import javax.swing.SwingConstants;
 
 @SuppressWarnings("serial")
 public class DialogWrapper {
@@ -20,7 +25,7 @@ public class DialogWrapper {
 		
 	}
 	
-	class AddEntryDialogPane extends JPanel {
+	class AddEntryDialogPane extends JPanel {	
 		JLabel lblServiceName;
 		JLabel lblCategory;
 		JLabel lblWebsite;
@@ -33,6 +38,8 @@ public class DialogWrapper {
 		JTextField usernameInput;
 		JTextField eMailInput;
 		
+		JButton btnGeneratePassword;
+		
 		JPasswordField passwordInput;
 
 		SpinnerModel table;
@@ -41,12 +48,13 @@ public class DialogWrapper {
 		public AddEntryDialogPane(String[] categories) {
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 			
-			lblServiceName = new JLabel("Service name");
-			lblCategory = new JLabel("Category");
-			lblWebsite = new JLabel("Website");
-			lblUsername = new JLabel("Username");
-			lblEMail = new JLabel("E-mail");
-			lblPassword = new JLabel("Password");
+			
+			lblServiceName = new JLabel("Service name", SwingConstants.LEFT);
+			lblCategory = new JLabel("Category", SwingConstants.LEFT);
+			lblWebsite = new JLabel("Website", SwingConstants.LEFT);
+			lblUsername = new JLabel("Username", SwingConstants.LEFT);
+			lblEMail = new JLabel("E-mail", SwingConstants.LEFT);
+			lblPassword = new JLabel("Password", SwingConstants.LEFT);
 			
 			serviceNameInput = new JTextField();
 			websiteInput = new JTextField();
@@ -54,6 +62,8 @@ public class DialogWrapper {
 			eMailInput = new JTextField();
 			
 			passwordInput = new JPasswordField();
+			
+			btnGeneratePassword = new JButton("Generate password");
 			
 			table = new SpinnerListModel(categories);
 			categoryOptions = new JSpinner(table);
@@ -70,6 +80,17 @@ public class DialogWrapper {
 			add(eMailInput);
 			add(lblPassword);
 			add(passwordInput);
+			add(Box.createVerticalStrut(5));
+			
+			btnGeneratePassword.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					String password = generatePassword(20);
+					passwordInput.setText(password);
+				}
+			});
+			add(btnGeneratePassword);
+			
 		}
 		
 		public String[] getInput() {
@@ -165,4 +186,22 @@ public class DialogWrapper {
 			return confirmPassInput.getPassword();
 		}
 	}
+	
+	public String generatePassword(int length) {
+		final String baseCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" + 
+				"#/!$§?-_+" +
+				"abcdefghijklmnopqrstuvwxyz" + 
+				"0123456789"; 
+
+		final StringBuilder strBuild = new StringBuilder(length);
+
+		for (int i = 0; i < length; i++) {
+			int randomIndex = (int)(baseCharacters.length() * Math.random());
+
+			strBuild.append(baseCharacters.charAt(randomIndex));	
+		}
+
+		return strBuild.toString();
+	}
+	
 }

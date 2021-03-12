@@ -74,8 +74,4 @@ public class DatabaseCreator {
 		}	
 
 	}
-	
-//	public static void main(String[] args) {
-//		new DatabaseCreator().createPasswordDatabase(new char[] {'1','2','3','4'});
-//	}
 }
