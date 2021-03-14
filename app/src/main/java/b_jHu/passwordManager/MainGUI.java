@@ -29,7 +29,10 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JTextField;
+import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
@@ -38,14 +41,17 @@ public class MainGUI extends JFrame {
 
 	private static final String[] MENU_OPTIONS = new String[]{"Social media", "Gaming", "Office suites", "Online shopping", "WiFi passwords", "Other"};
 
+	private static final Color ACCENT_COLOR = new Color(152, 34, 34); 
+	private static final Color ACCENT_COLOR_DARKER = new Color(122, 27, 27); 
+	private static final Color MENU_COLOR = new Color(52, 60, 63);
+	private static final Color RENDER_PANE_COLOR = new Color(235, 235, 235);
+	
 	private static final String SETTINGS_FILE_NAME = "config.xml";
 	private static final String DB_FILE_NAME = "passwords.db";
 	private static final String SUBDIRECTORY_NAME = "/files/";
 	
-	private static final Color ACCENT_COLOR = new Color(163, 69, 69);
-	private static final Color ACCENT_COLOR_DARKER = new Color(120, 51, 51);
-	private static final Color MENU_COLOR = Color.DARK_GRAY;
-	private static final Color RENDER_PANE_COLOR = new Color(235, 235, 235);
+	private static final String APPLICATION_NAME = "PassSafe";
+	private static final String VERSION_NUMBER = "v1.1.1";
 	
 	private static DBInteractor dbInteractor;
 	private static AESWrapper aesWrap;
@@ -66,7 +72,7 @@ public class MainGUI extends JFrame {
 		DialogWrapper.MasterPasswordInputPane masterPassPane = dialogWrapper.new MasterPasswordInputPane();
 		while (!compareWithMasterPassword(new String(masterPassPane.getInput()))) {
 			masterPassPane.deletePasswordInputText();
-			int result = JOptionPane.showConfirmDialog(null, masterPassPane, "Input master password", JOptionPane.OK_CANCEL_OPTION);
+			int result = JOptionPane.showConfirmDialog(null, masterPassPane, "Input master password", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 			if (result == JOptionPane.CANCEL_OPTION) {
 				System.exit(0);
 				return;
@@ -83,7 +89,7 @@ public class MainGUI extends JFrame {
 		JPanel contentPane = new JPanel();
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		setTitle("Password Manager");
+		setTitle(APPLICATION_NAME + " " + VERSION_NUMBER);
 		Dimension screenDimensions = Toolkit.getDefaultToolkit().getScreenSize();
 		setBounds(200, 200, (int)(screenDimensions.getWidth() - 400), (int)(screenDimensions.getHeight() - 400));
 		setMinimumSize(new Dimension(600,450));
@@ -101,28 +107,25 @@ public class MainGUI extends JFrame {
 		GridBagConstraints gbcHeaderBar = new GridBagConstraints();
 		gbcHeaderBar.gridy = 0;
 		
-		JPanel headerBar = new JPanel(gblHeaderBar);
+		JPanel headerBar = new JPanel(gblHeaderBar);   
 		headerBar.setBackground(ACCENT_COLOR);
 		
-		JLabel headerText = new JLabel("Password Manager");
+		JLabel headerText = new JLabel(APPLICATION_NAME);
 		headerText.setForeground(Color.WHITE);
 		headerText.setOpaque(false);
 		headerText.setFont(new Font("Calibri", Font.BOLD, 36));
-
 		gbcHeaderBar.gridx = 0;
-		gbcHeaderBar.insets = new Insets(0,5,0,0);
+		gbcHeaderBar.insets = new Insets(5,5,5,0);
 		headerBar.add(headerText, gbcHeaderBar);
 		
 		
 		JLabel spacerHeaderBar = new JLabel();
-		
 		gbcHeaderBar.gridx = 1;
 		gbcHeaderBar.weightx = 1.0;
 		gbcHeaderBar.insets = new Insets(0,0,0,0);
 		headerBar.add(spacerHeaderBar, gbcHeaderBar);
 		
 		JTextField searchField = new JTextField(20);
-		
 		gbcHeaderBar.gridx = 2;
 		gbcHeaderBar.weightx = 0.0;
 		headerBar.add(searchField, gbcHeaderBar);
@@ -147,7 +150,6 @@ public class MainGUI extends JFrame {
 				searchButton.setBackground(ACCENT_COLOR);
 			}
 		});
-		
 		gbcHeaderBar.gridx = 3;
 		gbcHeaderBar.insets = new Insets(0,10,0,5);
 		headerBar.add(searchButton, gbcHeaderBar);
@@ -178,6 +180,9 @@ public class MainGUI extends JFrame {
 			}
 		});
 		sideMenu.add(showAll, gbcSideMenu);
+		sideMenu.add(Box.createVerticalStrut(5), gbcSideMenu);
+		sideMenu.add(new JSeparator(), gbcSideMenu);
+		sideMenu.add(Box.createVerticalStrut(7), gbcSideMenu);
 		
 		
 		for (String entry : MENU_OPTIONS) {
@@ -208,12 +213,16 @@ public class MainGUI extends JFrame {
 		//create rendering-pane
 		renderPane = new JPanel(new FlowLayout());
 		renderPane.setBackground(RENDER_PANE_COLOR);
+		renderPane.setPreferredSize(new Dimension(200, (int)((dbInteractor.returnDatabaseEntries() / 3) * 127)));
+		
+		JScrollPane renderPaneScrollable = new JScrollPane(renderPane, ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED, ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
+		renderPaneScrollable.setBorder(null);
 				
 		gbcContentPane.gridy = 1;
 		gbcContentPane.gridx = 1;
 		gbcContentPane.weightx = 0.9;
 		gbcContentPane.weighty = 0.9;
-		contentPane.add(renderPane, gbcContentPane);
+		contentPane.add(renderPaneScrollable, gbcContentPane);
 		
 		//-----------
 		//'+'-button
@@ -223,7 +232,9 @@ public class MainGUI extends JFrame {
 		addEntryLbl.setFont(new Font("Calibri", Font.PLAIN, 36));
 		addEntryLbl.setVerticalAlignment(SwingConstants.TOP);
 		addEntryLbl.setHorizontalAlignment(SwingConstants.CENTER);
-		addEntryLbl.setPreferredSize(new Dimension(36, 36));
+		addEntryLbl.setMinimumSize(new Dimension(40, 40));
+		addEntryLbl.setPreferredSize(new Dimension(40, 40));
+		addEntryLbl.setMaximumSize(new Dimension(40, 40));
 		addEntryLbl.setOpaque(true);
 		
 		addEntryLbl.addMouseListener(new MouseAdapter() {
@@ -238,12 +249,15 @@ public class MainGUI extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				DialogWrapper.AddEntryDialogPane entryPane = dialogWrapper.new AddEntryDialogPane(MENU_OPTIONS);
-				int result = JOptionPane.showConfirmDialog(null, entryPane, "Add entry", JOptionPane.OK_CANCEL_OPTION);
+				int result = JOptionPane.showConfirmDialog(null, entryPane, "Add entry", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
 				if (result == JOptionPane.OK_OPTION) dbInteractor.addEntry(entryPane.getInput());
 
 				renderQueryResults(dbInteractor.queryDatabase(DBInteractor.QUERY_ALL, ""));
 			}
 		});
+		
+		JPanel dummyPane = new JPanel(); 
+		dummyPane.add(addEntryLbl); //using a dummy pane to fix a rendering bug; the '+'-button would resize without it
 		
 		//add to content pane
 		gbcContentPane.gridy = 2;
@@ -253,16 +267,17 @@ public class MainGUI extends JFrame {
 		gbcContentPane.fill = GridBagConstraints.NONE;
 		gbcContentPane.anchor = GridBagConstraints.LINE_END;
 		gbcContentPane.insets = new Insets(0,0,5,5);
-		contentPane.add(addEntryLbl, gbcContentPane);
+		contentPane.add(dummyPane, gbcContentPane);
+		
 		
 		renderQueryResults(dbInteractor.queryDatabase(DBInteractor.QUERY_ALL, ""));
-	}
-	//end constructor
+	} //end constructor
 	
 	//begin methods
 	public void renderQueryResults(ResultSet resSet) {
 		try {
 			renderPane.removeAll();
+			renderPane.add(Box.createHorizontalStrut(-20));
 			while (resSet.next()) {
 				DBEntryRenderer newEntry = new DBEntryRenderer(resSet.getString("serviceName"), resSet.getString("username"), resSet.getString("eMail"), resSet.getString("password"));
 				newEntry.mntmDeleteEntry.addActionListener(new ActionListener() {
@@ -272,11 +287,11 @@ public class MainGUI extends JFrame {
 						renderQueryResults(dbInteractor.queryDatabase(DBInteractor.QUERY_ALL, ""));
 					}
 				});
-				renderPane.add(Box.createHorizontalStrut(12));
 				renderPane.add(Box.createVerticalStrut(100));
 				renderPane.add(newEntry);
 			}
 			
+			renderPane.setPreferredSize(new Dimension(200, (int)((dbInteractor.returnDatabaseEntries() / 3) * 127))); //recalculate preferred size for scroll pane
 			renderPane.revalidate();
 			renderPane.repaint();
 		} catch (SQLException sqlEx) {

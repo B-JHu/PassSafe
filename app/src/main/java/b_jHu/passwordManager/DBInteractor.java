@@ -75,6 +75,23 @@ public class DBInteractor {
 		}
 	}
 	
+	public int returnDatabaseEntries() {
+		int counter = 0;
+		
+		try {
+			ResultSet results = queryDatabase(DBInteractor.QUERY_ALL, "");
+			
+			while(results.next()) {
+				counter++;
+			}
+			
+			return counter;
+		} catch (SQLException e) {
+			new ErrorMessage(e);
+			return counter;
+		}
+	}
+	
 	public void closeConnections() {
 		try {
 			stmt.close();

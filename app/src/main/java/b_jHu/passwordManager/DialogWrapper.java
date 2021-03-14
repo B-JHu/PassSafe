@@ -67,6 +67,7 @@ public class DialogWrapper {
 			
 			table = new SpinnerListModel(categories);
 			categoryOptions = new JSpinner(table);
+			categoryOptions.setEditor(new JSpinner.DefaultEditor(categoryOptions)); //make text field of JSpinner not editable
 			
 			add(lblServiceName);
 			add(serviceNameInput);
